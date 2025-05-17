@@ -8,6 +8,10 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
+
+import shutil, os
+print("which chromedriver:", shutil.which("chromedriver"))
+
 # --- 크롤링 함수들 정의 시작 ---
 MAX_REVIEWS = 100
 CLICK_BATCH = 10
@@ -24,25 +28,8 @@ def init_driver(headless=True):
 
     # 크롬 바이너리 경로 (선택)
     options.binary_location = "/usr/bin/chromium-browser"
+    return webdriver.Chrome(options=options)
 
-    # ——————————————
-    # 올바른 chromedriver 경로 찾아주기
-    #——————————————
-    # apt 설치 시 일반적인 위치 두 곳을 체크
-    possible = [
-        "/usr/lib/chromium-browser/chromedriver",
-        "/usr/lib/chromium/chromedriver",
-    ]
-    driver_path = next(p for p in possible if os.path.isfile(p))
-    service = Service(driver_path)
-
-    return webdriver.Chrome(service=service, options=options)
-
-#############
-import os
-print("Exists /usr/bin/chromedriver?", os.path.isfile("/usr/bin/chromedriver"))
-print("Exists /usr/lib/chromium-browser/chromedriver?", os.path.isfile("/usr/lib/chromium-browser/chromedriver"))
-#############
 
 # --- Kakao Map Functions ---
 def crawl_kakao_reviews(restaurant_name):
