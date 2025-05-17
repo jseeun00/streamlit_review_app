@@ -1,0 +1,7 @@
+[server]
+headless = true
+enableCORS = false
+port = $PORT
+
+[browser]
+chromeExecutable = "/usr/bin/chromium-browser"
