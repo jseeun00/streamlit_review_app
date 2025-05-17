@@ -26,8 +26,14 @@ def init_driver(headless=True):
     # [중요] Streamlit Cloud 전용: 바이너리 경로 명시
     options.binary_location = "/usr/bin/chromium-browser"
 
-    service = Service("/usr/bin/chromedriver")
+    service = Service("/usr/lib/chromium-browser/chromedriver")
     return webdriver.Chrome(service=service, options=options)
+
+#############
+import os
+print("Exists /usr/bin/chromedriver?", os.path.isfile("/usr/bin/chromedriver"))
+print("Exists /usr/lib/chromium-browser/chromedriver?", os.path.isfile("/usr/lib/chromium-browser/chromedriver"))
+#############
 
 # --- Kakao Map Functions ---
 def crawl_kakao_reviews(restaurant_name):

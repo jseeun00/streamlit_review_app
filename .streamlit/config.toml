@@ -1,6 +1,3 @@
 [server]
 headless = true
 enableCORS = false
-
-[browser]
-chromeExecutable = "/usr/bin/chromium-browser"
