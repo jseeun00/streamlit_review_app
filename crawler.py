@@ -13,7 +13,7 @@ from selenium.common.exceptions import NoSuchElementException, TimeoutException
 MAX_REVIEWS = 100
 CLICK_BATCH = 10
 
-def init_driver(headless=False):
+def init_driver(headless=True):
     options = webdriver.ChromeOptions()
     options.add_argument("--start-maximized")
     options.add_argument("--lang=ko")
@@ -21,8 +21,11 @@ def init_driver(headless=False):
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--remote-allow-origins=*")  # 필수 옵션
     if headless:
-        options.add_argument("--headless")
-        options.add_argument("--disable-gpu")
+        options.add_argument("--headless=new")
+
+    # [중요] Streamlit Cloud 전용: 바이너리 경로 명시
+    options.binary_location = "/usr/bin/chromium-browser"
+
     service = Service(ChromeDriverManager().install())
     return webdriver.Chrome(service=service, options=options)
 
