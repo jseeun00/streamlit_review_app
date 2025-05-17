@@ -17,6 +17,7 @@ def init_driver(headless=True):
     options = webdriver.ChromeOptions()
     options.add_argument("--start-maximized")
     options.add_argument("--lang=ko")
+    options.add_argument("--disable-gpu")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--remote-allow-origins=*")  # 필수 옵션
@@ -32,7 +33,7 @@ def init_driver(headless=True):
 # --- Kakao Map Functions ---
 def crawl_kakao_reviews(restaurant_name):
     import re
-    driver = init_driver(headless=False)
+    driver = init_driver()
     print(f"[Kakao] '{restaurant_name}' 검색 시작")
     try:
         driver.get("https://map.kakao.com/")
@@ -233,7 +234,7 @@ def get_top_reviews(driver, topn=MAX_REVIEWS, max_scrolls=12):
 
 # --- Google Maps Crawling Function ---
 def crawl_google_reviews(restaurant_name):
-    driver = init_driver(headless=False)
+    driver = init_driver()
     print(f"[Google] '{restaurant_name}' 검색 시작")
     try:
         driver.get("https://www.google.com/maps")
