@@ -14,19 +14,28 @@ CLICK_BATCH = 10
 
 def init_driver(headless=True):
     options = webdriver.ChromeOptions()
-    options.add_argument("--start-maximized")
-    options.add_argument("--lang=ko")
-    options.add_argument("--disable-gpu")
+    # 필수 헤드리스 옵션
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--remote-allow-origins=*")  # 필수 옵션
-    if headless:
-        options.add_argument("--headless=new")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--headless=new")
+    options.add_argument("--window-size=1920x1080")
+    options.add_argument("--lang=ko")
 
-    # [중요] Streamlit Cloud 전용: 바이너리 경로 명시
+    # 크롬 바이너리 경로 (선택)
     options.binary_location = "/usr/bin/chromium-browser"
 
-    service = Service("/usr/lib/chromium-browser/chromedriver")
+    # ——————————————
+    # 올바른 chromedriver 경로 찾아주기
+    #——————————————
+    # apt 설치 시 일반적인 위치 두 곳을 체크
+    possible = [
+        "/usr/lib/chromium-browser/chromedriver",
+        "/usr/lib/chromium/chromedriver",
+    ]
+    driver_path = next(p for p in possible if os.path.isfile(p))
+    service = Service(driver_path)
+
     return webdriver.Chrome(service=service, options=options)
 
 #############
