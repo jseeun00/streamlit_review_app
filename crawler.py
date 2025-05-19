@@ -36,7 +36,6 @@ def init_driver(headless=True):
     return webdriver.Chrome(service=service, options=options)
 
 
-
 # --- Kakao Map Functions ---
 def crawl_kakao_reviews(restaurant_name):
     import re
