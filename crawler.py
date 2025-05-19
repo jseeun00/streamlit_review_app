@@ -28,7 +28,13 @@ def init_driver(headless=True):
 
     # 크롬 바이너리 경로 (선택)
     options.binary_location = "/usr/bin/chromium-browser"
-    return webdriver.Chrome(options=options)
+    
+    # apt로 설치된 드라이버 경로 지정
+    service = Service("/usr/bin/chromedriver")
+
+    # 드라이버 생성
+    return webdriver.Chrome(service=service, options=options)
+
 
 
 # --- Kakao Map Functions ---
