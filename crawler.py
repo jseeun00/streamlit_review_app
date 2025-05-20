@@ -28,28 +28,14 @@ def init_driver(headless=True):
     options.add_argument("--window-size=1920x1080")
     options.add_argument("--lang=ko")
 
-    # 크롬 바이너리 위치 (macOS용 + 리눅스용 + Fallback)
-    chrome_path_candidates = [
-        shutil.which("google-chrome"),
-        shutil.which("chromium"),
-        shutil.which("chromium-browser"),
-        "/usr/bin/google-chrome",
-        "/usr/bin/chromium",
-        "/usr/bin/chromium-browser",
-        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",  # macOS only
-    ]
-    chrome_path = next((path for path in chrome_path_candidates if path and os.path.exists(path)), None)
-
-    if chrome_path:
+    # Docker 환경에서 ENV로 설정된 바이너리 경로 사용
+    chrome_path = os.getenv("CHROME_BIN", None)
+    if chrome_path and os.path.exists(chrome_path):
         options.binary_location = chrome_path
-    else:
-        print("⚠️ Warning: Chrome binary not found. Proceeding without setting binary_location.")
 
-    # chromedriver 경로 자동 탐색
-    driver_path = shutil.which("chromedriver")
-    if driver_path is None:
-        raise FileNotFoundError("❌ chromedriver not found in system PATH")
-
+    driver_path = os.getenv("CHROMEDRIVER_BIN", None)
+    if not driver_path or not os.path.exists(driver_path):
+        raise FileNotFoundError(f"chromedriver not found at {driver_path}")
     service = Service(driver_path)
     return webdriver.Chrome(service=service, options=options)
 
