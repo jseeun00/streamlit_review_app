@@ -15,34 +15,44 @@ MAX_REVIEWS = 100
 CLICK_BATCH = 10
 
 def init_driver(headless=True):
-    options = webdriver.ChromeOptions()
+    import shutil
+    from selenium import webdriver
+    from selenium.webdriver.chrome.service import Service
 
-    # 필수 헤드리스 옵션
+    options = webdriver.ChromeOptions()
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--disable-gpu")
-    options.add_argument("--headless=new")
+    if headless:
+        options.add_argument("--headless=new")
     options.add_argument("--window-size=1920x1080")
     options.add_argument("--lang=ko")
 
-    # macOS 대응: 로컬 개발환경용 (Google Chrome 위치 수동 지정)
-    chrome_path = shutil.which("google-chrome") or \
-                  shutil.which("chromium") or \
-                  shutil.which("chromium-browser") or \
-                  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+    # 크롬 바이너리 위치 (macOS용 + 리눅스용 + Fallback)
+    chrome_path_candidates = [
+        shutil.which("google-chrome"),
+        shutil.which("chromium"),
+        shutil.which("chromium-browser"),
+        "/usr/bin/google-chrome",
+        "/usr/bin/chromium",
+        "/usr/bin/chromium-browser",
+        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",  # macOS only
+    ]
+    chrome_path = next((path for path in chrome_path_candidates if path and os.path.exists(path)), None)
 
-    if not os.path.exists(chrome_path):
-        raise FileNotFoundError("Chrome binary not found. Please check your installation.")
-
-    options.binary_location = chrome_path
+    if chrome_path:
+        options.binary_location = chrome_path
+    else:
+        print("⚠️ Warning: Chrome binary not found. Proceeding without setting binary_location.")
 
     # chromedriver 경로 자동 탐색
     driver_path = shutil.which("chromedriver")
     if driver_path is None:
-        raise FileNotFoundError("chromedriver not found in system PATH")
+        raise FileNotFoundError("❌ chromedriver not found in system PATH")
 
     service = Service(driver_path)
     return webdriver.Chrome(service=service, options=options)
+
 
 
 # --- Kakao Map Functions ---
