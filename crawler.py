@@ -8,9 +8,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
-
 import shutil, os
-print("which chromedriver:", shutil.which("chromedriver"))
 
 # --- 크롤링 함수들 정의 시작 ---
 MAX_REVIEWS = 100
@@ -18,6 +16,7 @@ CLICK_BATCH = 10
 
 def init_driver(headless=True):
     options = webdriver.ChromeOptions()
+
     # 필수 헤드리스 옵션
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
@@ -26,13 +25,16 @@ def init_driver(headless=True):
     options.add_argument("--window-size=1920x1080")
     options.add_argument("--lang=ko")
 
-    # 브라우저 경로 설정 (자동 탐색)
+    # macOS 대응: 로컬 개발환경용 (Google Chrome 위치 수동 지정)
     chrome_path = shutil.which("google-chrome") or \
                   shutil.which("chromium") or \
-                  shutil.which("chromium-browser")
+                  shutil.which("chromium-browser") or \
+                  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 
-    if chrome_path:
-        options.binary_location = chrome_path
+    if not os.path.exists(chrome_path):
+        raise FileNotFoundError("Chrome binary not found. Please check your installation.")
+
+    options.binary_location = chrome_path
 
     # chromedriver 경로 자동 탐색
     driver_path = shutil.which("chromedriver")
