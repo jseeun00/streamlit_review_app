@@ -26,13 +26,20 @@ def init_driver(headless=True):
     options.add_argument("--window-size=1920x1080")
     options.add_argument("--lang=ko")
 
-    # 크롬 바이너리 경로 (선택)
-    options.binary_location = "/usr/bin/chromium-browser"
-    
-    # apt로 설치된 드라이버 경로 지정
-    service = Service("/usr/bin/chromedriver")
+    # 브라우저 경로 설정 (자동 탐색)
+    chrome_path = shutil.which("google-chrome") or \
+                  shutil.which("chromium") or \
+                  shutil.which("chromium-browser")
 
-    # 드라이버 생성
+    if chrome_path:
+        options.binary_location = chrome_path
+
+    # chromedriver 경로 자동 탐색
+    driver_path = shutil.which("chromedriver")
+    if driver_path is None:
+        raise FileNotFoundError("chromedriver not found in system PATH")
+
+    service = Service(driver_path)
     return webdriver.Chrome(service=service, options=options)
 
 
