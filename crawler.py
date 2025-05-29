@@ -36,17 +36,6 @@ def init_driver(headless=True):
     return webdriver.Chrome(service=service, options=options)
 
 
-
-def init_driver():
-    options = Options()
-    options.add_argument("--headless")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    
-    service = Service(ChromeDriverManager().install())
-    return webdriver.Chrome(service=service, options=options)
-
-
 # --- Kakao Map Functions ---
 def crawl_kakao_reviews(restaurant_name):
     import re
