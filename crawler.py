@@ -12,6 +12,11 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 import shutil, os
 
+
+from pathlib import Path
+
+
+
 # --- 크롤링 함수들 정의 시작 ---
 MAX_REVIEWS = 100
 CLICK_BATCH = 10
@@ -41,6 +46,26 @@ def init_driver():
     options.binary_location = chrome_path
 
     return webdriver.Chrome(service=service, options=options)
+
+
+env_driver = os.getenv("CHROMEDRIVER_BIN")
+driver_path = (
+    env_driver if env_driver and Path(env_driver).is_file()
+    else shutil.which("chromedriver")
+    or ChromeDriverManager().install()
+)
+
+chrome_path = (
+    os.getenv("CHROME_BIN")
+    or shutil.which("chromium")
+    or shutil.which("chromium-browser")
+)
+if not chrome_path:
+    raise FileNotFoundError("Chrome/Chromium binary not found")
+options.binary_location = chrome_path
+
+
+
 
 # --- Kakao Map Functions ---
 def crawl_kakao_reviews(restaurant_name):
