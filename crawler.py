@@ -9,7 +9,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
 import shutil, os
-from selenium.webdriver.chrome.options import Options
 
 # --- 크롤링 함수들 정의 시작 ---
 MAX_REVIEWS = 100
@@ -40,45 +39,6 @@ def init_driver(headless=True):
     service = Service(driver_path)
     return webdriver.Chrome(service=service, options=options)
 
-############# 새로 다시  ###################
-def init_driver():
-    # 1) Chrome 옵션 객체 생성
-    options = Options()
-    # └ 기존에 쓰던 --headless=new 대신 안정적인 --headless
-    options.add_argument("--headless")
-    # └ Render나 Docker 환경에서 권장되는 옵션들
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-
-    # 2) chromedriver 경로 결정
-    #    우선 CHROMEDRIVER_BIN 환경변수 확인하고, 없다면 시스템 PATH에서 검색
-    driver_path = os.getenv("CHROMEDRIVER_BIN") or shutil.which("chromedriver")
-    if not driver_path:
-        # └ 찾지 못하면 명확한 메시지로 예외 발생
-        raise FileNotFoundError(
-            "chromedriver not found; "
-            "set CHROMEDRIVER_BIN or install 'chromium-driver' in your image"
-        )
-
-    # 3) Chrome(브라우저) 바이너리 경로 지정
-    #    Render/Docker 환경에서는 브라우저도 커스텀 설치한 경우가 많으므로
-    chrome_bin = (
-        os.getenv("CHROME_BIN")
-        or shutil.which("chromium")
-        or shutil.which("google-chrome")
-    )
-    if chrome_bin:
-        options.binary_location = chrome_bin
-    else:
-        # └ 정말 브라우저가 없다면, 크롤링 자체가 불가능하니 안내 메시지
-        raise FileNotFoundError(
-            "Chrome binary not found; "
-            "set CHROME_BIN or install 'chromium' in your image"
-        )
-
-    # 4) Service 객체 생성 및 드라이버 반환
-    service = Service(driver_path)
-    return webdriver.Chrome(service=service, options=options)
 
 
 # --- Kakao Map Functions ---
