@@ -9,6 +9,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
 import shutil, os
+from selenium.webdriver.chrome.options import Options
 
 # --- 크롤링 함수들 정의 시작 ---
 MAX_REVIEWS = 100
