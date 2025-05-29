@@ -22,7 +22,7 @@ def init_driver():
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
 
-    # 1) ENV → 2) which() → 3) Manager.install()
+    # 드라이버: ENV → which() → webdriver-manager
     driver_path = (
         os.getenv("CHROMEDRIVER_BIN")
         or shutil.which("chromedriver")
@@ -30,7 +30,7 @@ def init_driver():
     )
     service = Service(driver_path)
 
-    # 브라우저 바이너리도 ENV → which() 순서로 찾기
+    # 브라우저: ENV → which()
     chrome_path = (
         os.getenv("CHROME_BIN")
         or shutil.which("chromium")
