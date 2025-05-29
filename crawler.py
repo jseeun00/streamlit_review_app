@@ -11,8 +11,6 @@ from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from webdriver_manager.chrome import ChromeDriverManager
 
 import shutil, os
-
-
 from pathlib import Path
 
 
@@ -21,29 +19,39 @@ from pathlib import Path
 MAX_REVIEWS = 100
 CLICK_BATCH = 10
 
+
 def init_driver():
     options = Options()
     options.add_argument("--headless")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
 
-    driver_path = (
-        os.getenv("CHROMEDRIVER_BIN")
-        or shutil.which("chromedriver")
-        or ChromeDriverManager().install()
-    )
+    # 1) Chromedriver 경로: ENV → PATH → Manager
+    env_drv = os.getenv("CHROMEDRIVER_BIN")
+    if env_drv and Path(env_drv).is_file():
+        driver_path = env_drv
+    elif (drv := shutil.which("chromedriver")):
+        driver_path = drv
+    else:
+        driver_path = ChromeDriverManager().install()
     service = Service(driver_path)
 
-    chrome_path = (
-        os.getenv("CHROME_BIN")
-        or shutil.which("chromium")
-        or shutil.which("chromium-browser")
-    )
-    if not chrome_path:
-        raise FileNotFoundError("Chrome/Chromium binary not found")
+    # 2) Chrome/Chromium 바이너리: ENV → PATH
+    env_chrome = os.getenv("CHROME_BIN")
+    if env_chrome and Path(env_chrome).is_file():
+        chrome_path = env_chrome
+    elif (bin1 := shutil.which("chromium")):
+        chrome_path = bin1
+    elif (bin2 := shutil.which("chromium-browser")):
+        chrome_path = bin2
+    else:
+        raise FileNotFoundError(
+            "Chrome/Chromium executable not found. "
+            "Ensure your Dockerfile installed 'chromium' and 'chromium-driver', "
+            "and that CHROME_BIN is set correctly."
+        )
     options.binary_location = chrome_path
 
-    # ← 이 return 문도 init_driver() 블록의 끝, 4칸 들여쓰기 레벨을 유지해야 합니다
     return webdriver.Chrome(service=service, options=options)
 
 
