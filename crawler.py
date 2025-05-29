@@ -22,7 +22,7 @@ def init_driver():
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
 
-    # 1) ENV로 지정된 드라이버 → 2) PATH에 있는 드라이버 → 3) Manager 설치
+    # 1) ENV → 2) which() → 3) Manager.install()
     driver_path = (
         os.getenv("CHROMEDRIVER_BIN")
         or shutil.which("chromedriver")
@@ -30,18 +30,17 @@ def init_driver():
     )
     service = Service(driver_path)
 
-    # 브라우저 바이너리 지정: ENV → 표준 위치 검색
-    chrome_bin = (
+    # 브라우저 바이너리도 ENV → which() 순서로 찾기
+    chrome_path = (
         os.getenv("CHROME_BIN")
-        or shutil.which("chromium-browser")
         or shutil.which("chromium")
+        or shutil.which("chromium-browser")
     )
-    if not chrome_bin:
+    if not chrome_path:
         raise FileNotFoundError("Chrome/Chromium binary not found")
-    options.binary_location = chrome_bin
+    options.binary_location = chrome_path
 
     return webdriver.Chrome(service=service, options=options)
-
 
 # --- Kakao Map Functions ---
 def crawl_kakao_reviews(restaurant_name):
