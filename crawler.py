@@ -27,15 +27,13 @@ def init_driver():
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
 
-    # 드라이버: ENV → which() → webdriver-manager
+    env_driver = os.getenv("CHROMEDRIVER_BIN")
     driver_path = (
-        os.getenv("CHROMEDRIVER_BIN")
-        or shutil.which("chromedriver")
+        env_driver if env_driver and Path(env_driver).is_file()
+        else shutil.which("chromedriver")
         or ChromeDriverManager().install()
     )
-    service = Service(driver_path)
 
-    # 브라우저: ENV → which()
     chrome_path = (
         os.getenv("CHROME_BIN")
         or shutil.which("chromium")
@@ -44,26 +42,7 @@ def init_driver():
     if not chrome_path:
         raise FileNotFoundError("Chrome/Chromium binary not found")
     options.binary_location = chrome_path
-
-    return webdriver.Chrome(service=service, options=options)
-
-
-env_driver = os.getenv("CHROMEDRIVER_BIN")
-driver_path = (
-    env_driver if env_driver and Path(env_driver).is_file()
-    else shutil.which("chromedriver")
-    or ChromeDriverManager().install()
-)
-
-chrome_path = (
-    os.getenv("CHROME_BIN")
-    or shutil.which("chromium")
-    or shutil.which("chromium-browser")
-)
-if not chrome_path:
-    raise FileNotFoundError("Chrome/Chromium binary not found")
-options.binary_location = chrome_path
-
+        return webdriver.Chrome(service=service, options=options)
 
 
 
