@@ -8,6 +8,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
+from webdriver_manager.chrome import ChromeDriverManager
 
 import shutil, os
 
@@ -15,26 +16,27 @@ import shutil, os
 MAX_REVIEWS = 100
 CLICK_BATCH = 10
 
-def init_driver(headless=True):
-    options = webdriver.ChromeOptions()
+
+def init_driver():
+    options = Options()
+    options.add_argument("--headless")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--headless=new")
-    options.add_argument("--window-size=1920x1080")
-    options.add_argument("--lang=ko")
 
-    # Docker 환경에서 ENV로 설정된 바이너리 경로 사용
-    chrome_path = os.getenv("CHROME_BIN", None)
-    if chrome_path and os.path.exists(chrome_path):
-        options.binary_location = chrome_path
-
-    driver_path = os.getenv("CHROMEDRIVER_BIN", None)
+    # 1) ENV로 지정된 경로 시도
+    driver_path = os.getenv("CHROMEDRIVER_BIN")
+    # 2) 없으면 ChromeDriverManager를 써서 자동 다운로드/검색
     if not driver_path or not os.path.exists(driver_path):
-        raise FileNotFoundError(f"chromedriver not found at {driver_path}")
-    service = Service(driver_path)
-    return webdriver.Chrome(service=service, options=options)
+        driver_path = ChromeDriverManager().install()
 
+    service = Service(driver_path)
+
+    # (선택) ENV에 CHROME_BIN 지정해 두셨다면 브라우저 위치도 설정
+    chrome_bin = os.getenv("CHROME_BIN")
+    if chrome_bin:
+        options.binary_location = chrome_bin
+
+    return webdriver.Chrome(service=service, options=options)
 
 # --- Kakao Map Functions ---
 def crawl_kakao_reviews(restaurant_name):
