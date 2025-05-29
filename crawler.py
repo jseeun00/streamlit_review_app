@@ -16,27 +16,32 @@ import shutil, os
 MAX_REVIEWS = 100
 CLICK_BATCH = 10
 
-
 def init_driver():
     options = Options()
     options.add_argument("--headless")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
 
-    # 1) ENV로 지정된 경로 시도
-    driver_path = os.getenv("CHROMEDRIVER_BIN")
-    # 2) 없으면 ChromeDriverManager를 써서 자동 다운로드/검색
-    if not driver_path or not os.path.exists(driver_path):
-        driver_path = ChromeDriverManager().install()
-
+    # 1) ENV로 지정된 드라이버 → 2) PATH에 있는 드라이버 → 3) Manager 설치
+    driver_path = (
+        os.getenv("CHROMEDRIVER_BIN")
+        or shutil.which("chromedriver")
+        or ChromeDriverManager().install()
+    )
     service = Service(driver_path)
 
-    # (선택) ENV에 CHROME_BIN 지정해 두셨다면 브라우저 위치도 설정
-    chrome_bin = os.getenv("CHROME_BIN")
-    if chrome_bin:
-        options.binary_location = chrome_bin
+    # 브라우저 바이너리 지정: ENV → 표준 위치 검색
+    chrome_bin = (
+        os.getenv("CHROME_BIN")
+        or shutil.which("chromium-browser")
+        or shutil.which("chromium")
+    )
+    if not chrome_bin:
+        raise FileNotFoundError("Chrome/Chromium binary not found")
+    options.binary_location = chrome_bin
 
     return webdriver.Chrome(service=service, options=options)
+
 
 # --- Kakao Map Functions ---
 def crawl_kakao_reviews(restaurant_name):
