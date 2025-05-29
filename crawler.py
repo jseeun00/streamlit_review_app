@@ -2,6 +2,7 @@ import time
 import re
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
@@ -14,34 +15,27 @@ import shutil, os
 MAX_REVIEWS = 100
 CLICK_BATCH = 10
 
-#def init_driver(headless=True):
-#    options = webdriver.ChromeOptions()
-#    options.add_argument("--no-sandbox")
-#    options.add_argument("--disable-dev-shm-usage")
-#    options.add_argument("--disable-gpu")
-#    if headless:
-#        options.add_argument("--headless=new")
-#    options.add_argument("--window-size=1920x1080")
-#    options.add_argument("--lang=ko")
-#
-#    # Docker 환경에서 ENV로 설정된 바이너리 경로 사용
-#    chrome_path = os.getenv("CHROME_BIN", None)
-#    if chrome_path and os.path.exists(chrome_path):
-#        options.binary_location = chrome_path
-#
-#    driver_path = os.getenv("CHROMEDRIVER_BIN", None)
-#    if not driver_path or not os.path.exists(driver_path):
-#        raise FileNotFoundError(f"chromedriver not found at {driver_path}")
-#    service = Service(driver_path)
-#    return webdriver.Chrome(service=service, options=options)
+def init_driver(headless=True):
+    options = webdriver.ChromeOptions()
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--headless=new")
+    options.add_argument("--window-size=1920x1080")
+    options.add_argument("--lang=ko")
+
+    # Docker 환경에서 ENV로 설정된 바이너리 경로 사용
+    chrome_path = os.getenv("CHROME_BIN", None)
+    if chrome_path and os.path.exists(chrome_path):
+        options.binary_location = chrome_path
+
+    driver_path = os.getenv("CHROMEDRIVER_BIN", None)
+    if not driver_path or not os.path.exists(driver_path):
+        raise FileNotFoundError(f"chromedriver not found at {driver_path}")
+    service = Service(driver_path)
+    return webdriver.Chrome(service=service, options=options)
 
 
-################## 다시 ######################
-
-import os, shutil
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
 
 def init_driver():
     options = Options()
