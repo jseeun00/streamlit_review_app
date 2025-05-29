@@ -1,34 +1,28 @@
-# ── 1) 베이스 이미지: 슬림한 Python 3.10
-FROM python:3.10-slim
+FROM python:3.12-slim
 
-# ── 2) 비대화형(Auto yes) 모드로
-ARG DEBIAN_FRONTEND=noninteractive
+# 1) 시스템 패키지 설치
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+      chromium \
+      chromium-driver \
+      default-jre-headless \
+    && rm -rf /var/lib/apt/lists/*
 
-# ── 3) 시스템 패키지 업데이트 & 크롬 설치
-RUN apt-get update \
- && apt-get install -y --no-install-recommends \
-      wget unzip curl gnupg ca-certificates \
-      chromium chromium-driver \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
-
-# ── 4) 환경변수: 코드에서 이 경로를 참조합니다
-ENV CHROME_BIN=/usr/bin/chromium
-ENV CHROMEDRIVER_BIN=/usr/bin/chromedriver
-
-# ── 5) requirements 복사 & pip 설치
-COPY requirements.txt /app/requirements.txt
+# 2) 작업 디렉터리 설정
 WORKDIR /app
+
+# 3) 의존성 복사 및 설치
+COPY requirements.txt /app/
 RUN pip install --upgrade pip \
- && pip install -r requirements.txt
+    && pip install -r requirements.txt
 
-# ── 6) 애플리케이션 코드 복사 & 포트 열기
+# 4) 소스 복사
 COPY . /app
+
+# 5) 환경변수 설정
+ENV CHROME_BIN=/usr/bin/chromium \
+    CHROMEDRIVER_BIN=/usr/bin/chromedriver
+
+# 6) 스트림릿 실행
 EXPOSE 8501
-
-# ── 7) 컨테이너 시작 시 실행할 명령
-CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.enableCORS=false"]
-
-
-
-
+CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
