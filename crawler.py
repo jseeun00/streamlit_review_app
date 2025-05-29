@@ -27,12 +27,12 @@ def init_driver():
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
 
-    env_driver = os.getenv("CHROMEDRIVER_BIN")
     driver_path = (
-        env_driver if env_driver and Path(env_driver).is_file()
-        else shutil.which("chromedriver")
+        os.getenv("CHROMEDRIVER_BIN")
+        or shutil.which("chromedriver")
         or ChromeDriverManager().install()
     )
+    service = Service(driver_path)
 
     chrome_path = (
         os.getenv("CHROME_BIN")
@@ -42,8 +42,9 @@ def init_driver():
     if not chrome_path:
         raise FileNotFoundError("Chrome/Chromium binary not found")
     options.binary_location = chrome_path
-        return webdriver.Chrome(service=service, options=options)
 
+    # ← 이 return 문도 init_driver() 블록의 끝, 4칸 들여쓰기 레벨을 유지해야 합니다
+    return webdriver.Chrome(service=service, options=options)
 
 
 # --- Kakao Map Functions ---
