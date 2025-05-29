@@ -40,6 +40,39 @@ def init_driver(headless=True):
     return webdriver.Chrome(service=service, options=options)
 
 
+################## 다시 ######################
+
+import os, shutil
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+
+def init_driver():
+    options = Options()
+    options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+
+    # 1) 환경변수 → 2) PATH → 3) 표준 설치 위치 순서로 검색
+    possible = [
+        os.getenv("CHROMEDRIVER_BIN"),
+        shutil.which("chromedriver"),
+        "/usr/lib/chromium-browser/chromedriver",
+    ]
+    driver_path = next((p for p in possible if p and os.path.exists(p)), None)
+    if not driver_path:
+        raise FileNotFoundError(
+            "chromedriver not found; set CHROMEDRIVER_BIN or install 'chromium-chromedriver'"
+        )
+
+    # 크롬 바이너리도 함께 지정
+    chrome_bin = os.getenv("CHROME_BIN") or shutil.which("chromium-browser")
+    if chrome_bin:
+        options.binary_location = chrome_bin
+
+    service = Service(driver_path)
+    return webdriver.Chrome(service=service, options=options)
+
 
 # --- Kakao Map Functions ---
 def crawl_kakao_reviews(restaurant_name):
