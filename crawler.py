@@ -20,25 +20,26 @@ logging.getLogger("streamlit.watcher.local_sources_watcher").setLevel(logging.WA
 # --- 크롤링 함수들 정의 시작 ---
 MAX_REVIEWS = 100
 CLICK_BATCH = 10
-
 def init_driver():
     options = Options()
     options.add_argument("--headless")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
 
-    # 1) ENV → which() 만 사용, Manager 설치는 제거
+    # 1) chromedriver: ENV → which() → 오류
     env_drv = os.getenv("CHROMEDRIVER_BIN")
     if env_drv and Path(env_drv).is_file():
         driver_path = env_drv
     elif (drv := shutil.which("chromedriver")):
         driver_path = drv
     else:
-        raise FileNotFoundError("chromedriver not found; ensure chromium-driver is installed")
-
+        raise FileNotFoundError(
+            "chromedriver를 찾을 수 없습니다. "
+            "컨테이너에 chromium-driver가 설치되어 있는지 확인하세요."
+        )
     service = Service(driver_path)
 
-    # 2) 브라우저 바이너리도 ENV → which()
+    # 2) chromium: ENV → which() → 오류
     env_chrome = os.getenv("CHROME_BIN")
     if env_chrome and Path(env_chrome).is_file():
         chrome_path = env_chrome
@@ -47,8 +48,10 @@ def init_driver():
     elif (bin2 := shutil.which("chromium-browser")):
         chrome_path = bin2
     else:
-        raise FileNotFoundError("Chrome/Chromium binary not found; ensure chromium is installed")
-
+        raise FileNotFoundError(
+            "Chrome/Chromium 바이너리를 찾을 수 없습니다. "
+            "컨테이너에 chromium이 설치되어 있는지 확인하세요."
+        )
     options.binary_location = chrome_path
 
     return webdriver.Chrome(service=service, options=options)
