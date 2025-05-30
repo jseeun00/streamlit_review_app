@@ -27,6 +27,7 @@ def init_driver():
     options.add_argument("--headless")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--disable-gpu")
 
     # ② chromedriver 경로 결정: ENV → which() → (없으면 에러)
     env_drv = os.getenv("CHROMEDRIVER_BIN")
