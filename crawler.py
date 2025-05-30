@@ -8,7 +8,6 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
-from webdriver_manager.chrome import ChromeDriverManager
 
 import shutil, os
 from pathlib import Path
@@ -20,13 +19,16 @@ logging.getLogger("streamlit.watcher.local_sources_watcher").setLevel(logging.WA
 # --- 크롤링 함수들 정의 시작 ---
 MAX_REVIEWS = 100
 CLICK_BATCH = 10
+
+
 def init_driver():
+    # ① 최소 옵션(Headless, No-Sandbox, Dev-Shm-Usage)
     options = Options()
     options.add_argument("--headless")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
 
-    # 1) chromedriver: ENV → which() → 오류
+    # ② chromedriver 경로 결정: ENV → which() → (없으면 에러)
     env_drv = os.getenv("CHROMEDRIVER_BIN")
     if env_drv and Path(env_drv).is_file():
         driver_path = env_drv
@@ -35,11 +37,11 @@ def init_driver():
     else:
         raise FileNotFoundError(
             "chromedriver를 찾을 수 없습니다. "
-            "컨테이너에 chromium-driver가 설치되어 있는지 확인하세요."
+            "컨테이너에 chromium-driver 패키지가 설치되어 있는지 확인하세요."
         )
     service = Service(driver_path)
 
-    # 2) chromium: ENV → which() → 오류
+    # ③ chromium 바이너리 경로 결정: ENV → which() → (없으면 에러)
     env_chrome = os.getenv("CHROME_BIN")
     if env_chrome and Path(env_chrome).is_file():
         chrome_path = env_chrome
@@ -50,10 +52,11 @@ def init_driver():
     else:
         raise FileNotFoundError(
             "Chrome/Chromium 바이너리를 찾을 수 없습니다. "
-            "컨테이너에 chromium이 설치되어 있는지 확인하세요."
+            "컨테이너에 chromium 패키지가 설치되어 있는지 확인하세요."
         )
-    options.binary_location = chrome_path
+    options.binary_location = chrome_path  # 여기가 반드시 필요합니다!
 
+    # ④ 최종 드라이버 객체 반환
     return webdriver.Chrome(service=service, options=options)
 
 
