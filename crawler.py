@@ -21,24 +21,24 @@ logging.getLogger("streamlit.watcher.local_sources_watcher").setLevel(logging.WA
 MAX_REVIEWS = 100
 CLICK_BATCH = 10
 
-
 def init_driver():
     options = Options()
     options.add_argument("--headless")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
 
-    # 1) Chromedriver 경로: ENV → PATH → Manager
+    # 1) ENV → which() 만 사용, Manager 설치는 제거
     env_drv = os.getenv("CHROMEDRIVER_BIN")
     if env_drv and Path(env_drv).is_file():
         driver_path = env_drv
     elif (drv := shutil.which("chromedriver")):
         driver_path = drv
     else:
-        driver_path = ChromeDriverManager().install()
+        raise FileNotFoundError("chromedriver not found; ensure chromium-driver is installed")
+
     service = Service(driver_path)
 
-    # 2) Chrome/Chromium 바이너리: ENV → PATH
+    # 2) 브라우저 바이너리도 ENV → which()
     env_chrome = os.getenv("CHROME_BIN")
     if env_chrome and Path(env_chrome).is_file():
         chrome_path = env_chrome
@@ -47,11 +47,8 @@ def init_driver():
     elif (bin2 := shutil.which("chromium-browser")):
         chrome_path = bin2
     else:
-        raise FileNotFoundError(
-            "Chrome/Chromium executable not found. "
-            "Ensure your Dockerfile installed 'chromium' and 'chromium-driver', "
-            "and that CHROME_BIN is set correctly."
-        )
+        raise FileNotFoundError("Chrome/Chromium binary not found; ensure chromium is installed")
+
     options.binary_location = chrome_path
 
     return webdriver.Chrome(service=service, options=options)
