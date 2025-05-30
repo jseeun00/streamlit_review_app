@@ -13,6 +13,8 @@ from webdriver_manager.chrome import ChromeDriverManager
 import shutil, os
 from pathlib import Path
 
+import logging
+logging.getLogger("streamlit.watcher.local_sources_watcher").setLevel(logging.WARNING)
 
 
 # --- 크롤링 함수들 정의 시작 ---
