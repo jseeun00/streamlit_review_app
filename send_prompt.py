@@ -11,13 +11,14 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver import ActionChains
 
+
 def init_driver():
     options = Options()
     options.add_argument("--headless")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
 
-    # chromedriver 경로: ENV -> which -> 오류
+    # chromedriver 경로: ENV -> which -> 에러
     env_drv = os.getenv("CHROMEDRIVER_BIN")
     if env_drv and Path(env_drv).is_file():
         driver_path = env_drv
@@ -29,7 +30,7 @@ def init_driver():
         )
     service = Service(driver_path)
 
-    # chromium 바이너리 경로: ENV -> which -> 오류
+    # chromium 바이너리 경로: ENV -> which -> 에러
     env_chrome = os.getenv("CHROME_BIN")
     if env_chrome and Path(env_chrome).is_file():
         chrome_path = env_chrome
@@ -79,7 +80,3 @@ if __name__ == "__main__":
         sys.exit(1)
     prompt_text = sys.argv[1]
     send_to_gemini(prompt_text)
-
-    send_to_gemini(prompt_text)
-
-
