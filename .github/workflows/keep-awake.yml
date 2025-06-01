@@ -1,0 +1,17 @@
+name: Keep App Awake
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'  # 매 10분마다 실행
+
+jobs:
+  ping-deployed-app:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Ping deployed app to prevent sleep
+        run: |
+          # 실제 배포된 앱의 URL을 아래에 입력하세요. 반드시 https:// 포함.
+          APP_URL="https://appreviewapp-n3fv3szeeryd8u4qrrgdsp.streamlit.app/"
+
+          curl -m 5 "${APP_URL}" || echo "Ping 실패: 앱이 응답하지 않습니다."
